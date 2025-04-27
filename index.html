@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="计算巢是阿里云开放给企业应用服务商的服务管理平台。服务商能够在计算巢上发布私有化部署服务，为其客户提供云上软件一键部署的能力；同时也支持全托管模式的服务，赋能服务商托管其客户资源。">
+  <title>MRACC-Spark性能加速最佳实践 - Aliyun 计算巢 x 维格表</title>
+
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="css/theme.css">
+  
+
+  
+
+  
+  
+
+  
+    <script src="search/main.js"></script>
+  
+
+  
+
+  <script src="js/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="logo">
+          <img src="./img/logo-2x.png">
+        </div>
+        <div class="nav-list">
+          <ul>
+          
+              <li><a href="#mracc-spark">MRACC-Spark性能加速最佳实践</a></li>
+              
+          
+              <li><a href="#_1">概述</a></li>
+              
+          
+              <li><a href="#_2">部署流程</a></li>
+              
+                  <li><a href="#_3">创建服务实例</a></li>
+                  
+                      <li class="li-h3"><a href="#_4">第一步：选择配置</a></li>
+                  
+                      <li class="li-h3"><a href="#_5">第二步：确认订单</a></li>
+                  
+                      <li class="li-h3"><a href="#_6">第三步：进入服务实例详情</a></li>
+                  
+              
+                  <li><a href="#master">登录master</a></li>
+                  
+              
+                  <li><a href="#_7">删除服务实例</a></li>
+                  
+              
+          
+              <li><a href="#_8">官方支持</a></li>
+              
+          
+              <li><a href="#_9">常见问题</a></li>
+              
+          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content theme-github">
+      
+      <div class="content-inner">        
+        
+        <h1 id="mracc-spark">MRACC-Spark性能加速最佳实践</h1>
+<h1 id="_1">概述</h1>
+<p>本教程为您介绍通过简单配置，就可以基于FASTMR在阿里云上自动拉起Spark+Hadoop大数据集群，实现集群互联、组件部署和监控，并集成 MRACC-Spark 加速套件，在TPCDS基准测试中验证性能提升。通过本教程，您将大大简化云上大数据集群的部署流程，快速完成大数据业务的选型验证（PoC）。</p>
+<h1 id="_2">部署流程</h1>
+<h2 id="_3">创建服务实例</h2>
+<h3 id="_4">第一步：选择配置</h3>
+<ol>
+<li>
+<p>服务实例名称（非必填，如无特殊要求，可以自定义或不填写使用默认值）；</p>
+</li>
+<li>
+<p>选择部署地域（可以自定义选择，如无特殊要求，保持默认即可）；</p>
+</li>
+<li>
+<p>资源配置：</p>
+<ol>
+<li>
+<p>选择付费时长（默认按量付费）；</p>
+</li>
+<li>
+<p>这里阿里云也推荐了几款配置套餐，分别是8xlarge规格1master+3worker，以及16xlarge规格实例1master+3worker，可以按需选择，或者自定义套餐配置:</p>
+</li>
+</ol>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>套餐名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8xlarge 1+3规模测试</td>
+<td>1master+3worker集群规模，默认测试1000G大小的TPCDS数据集规模。需要进一步选定实例类型，如g8i,g8a, g8y等</td>
+</tr>
+<tr>
+<td>16xlarge 1+3规模测试</td>
+<td>1master+3worker集群规模，默认测试3000G大小的TPCDS数据集规模。需要进一步选定实例类型，如g8i,g8a, g8y等</td>
+</tr>
+<tr>
+<td>自定义套餐</td>
+<td>可自由选择ECS实例，集群规模，和数据盘等配置</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="套餐界面" src="image.png" />
+3.  配置可用区（如无特殊要求，保持默认即可）。</p>
+<ol>
+<li>
+<p>配置ECS服务器密码（记住你的密码，后面要用）；</p>
+</li>
+<li>
+<p>网络配置：</p>
+</li>
+<li>
+<p>专有网络：可以选择新建或者已有专有网络，默认新建</p>
+</li>
+<li>
+<p>专有网络网段：根据需求选择（如无特殊要求，保持默认即可）。</p>
+</li>
+<li>
+<p>交换机子网网段：（如无特殊要求，保持默认即可）</p>
+</li>
+<li>
+<p>标签和资源组：</p>
+</li>
+<li>
+<p>标签：非必填，按需填写（如无特殊要求，保持默认即可）。</p>
+</li>
+<li>
+<p>资源组：非必填，按需填写（如无特殊要求，保持默认即可）。</p>
+</li>
+</ol>
+<p><img alt="" src="image1.png" /></p>
+<h3 id="_5">第二步：确认订单</h3>
+<ol>
+<li>在确认页面，勾选同意服务条款，点击“立即创建”，后面就是付款流程。</li>
+</ol>
+<p><img alt="" src="image2.png" /></p>
+<ol>
+<li>当出现提交成功提示，说明服务已经开始创建，点击“去列表查看”，可以看到服务正在部署中。
+<img alt="" src="image3.png" /></li>
+</ol>
+<p><img alt="" src="image4.png" /></p>
+<p><img alt="" src="image5.png" /></p>
+<h3 id="_6">第三步：进入服务实例详情</h3>
+<ol>
+<li>服务部署包括大数据环境搭建和测试任务拉起，大约需要8分钟左右，点击服务实例ID进入服务详情。</li>
+</ol>
+<p><img alt="" src="image6.png" /></p>
+<ol>
+<li>
+<p>到这一步的时候，ECS实例上已经在部署数据spark+hadoop环境了，无需手动操作，非常方便。</p>
+</li>
+<li>
+<p>看到“立即使用”“yarnhistory address”以及“tpcds result”，这就是大数据环境的masterIP地址了，说明环境已经搭建完成，测试任务已经拉起，结果将被写到对应的oss目录。</p>
+</li>
+</ol>
+<p><img alt="" src="image7.png" /></p>
+<ul>
+<li>
+<p>当对应的oss目录出现tpcds_result.csv文件时，说明tpcds测试已经完成，您下载可以查看结果。</p>
+<ul>
+<li>耗时时间跟集群规模以及测试数据规模相关，基于经验8xlarge 1+3 集群规模测试tpcds1000GB, 数据生成和查询流程耗时约1h</li>
+</ul>
+</li>
+</ul>
+<p>至此，您已经成功搭建了大数据spark+hadoop环境，并进行了tpcds性能测试 。</p>
+<h2 id="master">登录master</h2>
+<p>前置条件：需要在master的ECS实例的安全组中，添加您的本地ip地址。</p>
+<ol>
+<li>远程连接ECS实例</li>
+</ol>
+<p><img alt="" src="image8.png" /></p>
+<ul>
+<li>
+<p>通过密码认证登陆实例，参考<a href="https://help.aliyun.com/zh/ecs/user-guide/connect-to-a-linux-instance-by-using-a-password-1?spm=a2c4g.11186623.0.i5#undefined">教程</a></p>
+</li>
+<li>
+<p>更多登陆方式见，ECS<a href="https://help.aliyun.com/zh/ecs/user-guide/connect-to-an-instance-overview/?spm=a2c4g.11186623.help-menu-25365.d_4_1_4.33436ef9otufAR&amp;scm=20140722.H_48428._.OR_help-T_cn~zh-V_1">连接实例</a></p>
+</li>
+</ul>
+<h2 id="_7">删除服务实例</h2>
+<ol>
+<li>服务实例列表，点击删除按钮，确认删除。</li>
+</ol>
+<p><img alt="" src="image9.png" /></p>
+<ol>
+<li>进入服务实例详情页，点击右上角“删除服务实例”</li>
+</ol>
+<p><img alt="" src="image10.png" /></p>
+<p><img alt="" src="image11.png" /></p>
+<p><img alt="" src="image12.png" /></p>
+<h1 id="_8">官方支持</h1>
+<p>您有任何问题或者建议，可以使用钉钉扫描下方二维码，加人我们的官方服务群，我们将非常欢迎您的建议和反馈～</p>
+<p><img alt="" src="image13.png" /></p>
+<h1 id="_9">常见问题</h1>
+<ol>
+<li>StackValidationFailed   云资源在选定的可用区库存不足，请更换可用区或者地域重试</li>
+</ol>
+<p><img alt="" src="image14.png" /></p>
+<p>解决：尝试更换地域和可用区， 如beijing-l, hangzhou-j等</p>
+        
+      </div>
+
+      <div class="copyrights">© 2009-2022 Aliyun.com 版权所有</div>
+    </div>
+  </div>
+  
+  <!--
+  MkDocs version      : 1.6.1
+  Docs Build Date UTC : 2025-04-27 08:49:56.367346+00:00
+  -->
+</body>
+</html>
