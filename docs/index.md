@@ -1,11 +1,10 @@
-# 计算巢+ecs+fastmr实现spark-tpcds最佳实践
-
-# 快速部署大数据spark环境并拉起测试
+# MRACC-Spark性能加速最佳实践
 
 # 概述
 
-本教程为您介绍如何使用FASTMR在阿里云上通过简单配置，自动拉起spark+hadoop大数据集群，实现集群互联和组件部署及监控，并完成TPCDS的数据生成和分析，简化云上大数据的部署流程，快速完成大数据业务选型PoC。
+本教程为您介绍通过简单配置，就可以基于FASTMR在阿里云上自动拉起Spark+Hadoop大数据集群，实现集群互联、组件部署和监控，并集成 MRACC-Spark 加速套件，在TPCDS基准测试中验证性能提升。通过本教程，您将大大简化云上大数据集群的部署流程，快速完成大数据业务的选型验证（PoC）。
 
+# 部署流程
 ## 创建服务实例
 
 ### 第一步：选择配置
@@ -53,32 +52,29 @@
 
 ![](image2.png)
 
-2.  当出现提交成功提示，说明服务已经开始创建，点击“去列表查看”，可以看到服务正在部署中。![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/1X3lE5yVLpQrAlJb/img/1e159446-4661-40dd-8d64-6211e4a5b752.png)
+2.  当出现提交成功提示，说明服务已经开始创建，点击“去列表查看”，可以看到服务正在部署中。
+![](image3.png)
 
+![](image4.png)
 
-3.  ![](image3.png)
+![](image5.png)
 
-4.  ![](image4.png)
-
-
-### 第三步：进入实例详情
+### 第三步：进入服务实例详情
 
 1.  服务部署包括大数据环境搭建和测试任务拉起，大约需要8分钟左右，点击服务实例ID进入服务详情。
 
 
-![](image5.png)
+![](image6.png)
 
 2.  到这一步的时候，ECS实例上已经在部署数据spark+hadoop环境了，无需手动操作，非常方便。
 
 3.  看到“立即使用”“yarnhistory address”以及“tpcds result”，这就是大数据环境的masterIP地址了，说明环境已经搭建完成，测试任务已经拉起，结果将被写到对应的oss目录。
 
-
-![](image6.png)
+![](image7.png)
 
 *   当对应的oss目录出现tpcds\_result.csv文件时，说明tpcds测试已经完成，您下载可以查看结果。
 
-     *   耗时时间跟集群规模以及测试数据规模相关，基于经验8xlarge 1+3 集群规模测试tpcds1000GB, 耗时约1.5h
-
+     *   耗时时间跟集群规模以及测试数据规模相关，基于经验8xlarge 1+3 集群规模测试tpcds1000GB, 数据生成和查询流程耗时约1h
 
 至此，您已经成功搭建了大数据spark+hadoop环境，并进行了tpcds性能测试 。
 
@@ -88,8 +84,7 @@
 
 1.  远程连接ECS实例
 
-
-![](image7.png)
+![](image8.png)
 
 *   通过密码认证登陆实例，参考[教程](https://help.aliyun.com/zh/ecs/user-guide/connect-to-a-linux-instance-by-using-a-password-1?spm=a2c4g.11186623.0.i5#undefined)
 
@@ -97,10 +92,11 @@
 
 
 ## 删除服务实例
-
-![](image8.png)
+1. 服务实例列表，点击删除按钮，确认删除。
 
 ![](image9.png)
+
+2. 进入服务实例详情页，点击右上角“删除服务实例”
 
 ![](image10.png)
 
@@ -108,8 +104,15 @@
 
 ![](image12.png)
 
-## 官方支持
+# 官方支持
 
 您有任何问题或者建议，可以使用钉钉扫描下方二维码，加人我们的官方服务群，我们将非常欢迎您的建议和反馈～
 
 ![](image13.png)
+
+# 常见问题
+1. StackValidationFailed   云资源在选定的可用区库存不足，请更换可用区或者地域重试
+
+![](image14.png)
+
+解决：尝试更换地域和可用区， 如beijing-l, hangzhou-j等
